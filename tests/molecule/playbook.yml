@@ -1,0 +1,40 @@
+---
+- hosts: all
+
+  pre_tasks:
+    - name: "Install EncFS Shared Prerequisites"
+      package: "name={{ item }} state=present"
+      with_items:
+        - attr
+        - cmake
+        - fuse
+        - gettext
+        - make
+        - rsync
+
+    - name: "Install EncFS Debian-like Prerequisites"
+      package: "name={{ item }} state=present"
+      with_items:
+        - g++
+        - gcc
+        - libfuse-dev
+        - libssl-dev
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: "Install EncFS RedHat-like Prerequisites"
+      package: "name={{ item }} state=present"
+      with_items:
+        - fuse-devel
+        - gcc
+        - gcc-c++
+        - glibc-devel
+        - openssl-devel
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+    - name: "Check if EncFS is installed"
+      stat: path=/usr/local/bin/encfs
+      register: encfs_binary
+
+    - name: "Build and Install EncFS"
+      command: /molecule/tests/molecule/build.sh
+      when: encfs_binary.stat.exists == False

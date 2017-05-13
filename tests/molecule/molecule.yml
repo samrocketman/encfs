@@ -1,0 +1,39 @@
+---
+driver:
+  name: docker
+docker:
+  containers:
+    - name: ubuntu-16.04
+      image: ubuntu
+      image_version: 16.04
+      volume_mounts:
+        - '${ENCFS_ROOT}:/molecule:ro'
+      ansible_groups:
+        - ubuntu
+    - name: debian-jessie
+      image: debian
+      image_version: jessie
+      volume_mounts:
+        - '${ENCFS_ROOT}:/molecule:ro'
+      ansible_groups:
+        - debian
+    - name: centos-7
+      image: centos
+      image_version: 7
+      volume_mounts:
+        - '${ENCFS_ROOT}:/molecule:ro'
+      ansible_groups:
+        - centos
+verifier:
+  name: testinfra
+molecule:
+  ignore_paths:
+    - .git
+    - .venv
+  test:
+    sequence:
+      - destroy
+      - syntax
+      - create
+      - converge
+      - verify
